@@ -12,10 +12,13 @@ The Burger Stock and Customer Queue Management program allows users to keep trac
 - Burger Stock Management:
   - Add burgers to the stock
   - Remove burgers from the stock
-  - Check current stock count
+  - Check the current stock count
 
 - Customer Queue Management:
   - Add customers to the queue
   - Serve customers from the queue
+  - Remove customers from a queue
+
+- Add data to a text file for each session.
 
 
