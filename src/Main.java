@@ -9,31 +9,45 @@ import java.util.Scanner;
 
 
 public class Main {
+    //Initiate variable to get Date and time when a session starts.
     static String sessionStartDateTime;
+    //Set up the number of burgers in stock.
     int BurgerStockCount = 50;
+    //Set variable to track the number of burgers sold.
     int totalBurgersSold = 0;
+    // Three queues to store customer names
     String[] queue1 = new String[2];
     String[] queue2 = new String[3];
     String[] queue3 = new String[5];
+    // Multidimensional array to store served customer data
     Object[][] servedCustomerData = new Object[10][4];
+    // Flag to control program execution
     boolean runProgramme;
 
 
     public static void main(String[] args) {
+        // Get the current date and time
         LocalDateTime currentDateTime = LocalDateTime.now();
+        // Format the date and time
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        // Save the session start date and time
         sessionStartDateTime = currentDateTime.format(formatter);
+        // Create an instance of the Main class and run the menu
         new Main().runMenu();
     }
 
-    private void runMenu(){
+    public void runMenu(){
         String choice;
+        // Set the flag to true to continue program execution
         runProgramme = true;
 
         do {
+            // Print the menu options
             printMenu();
+            // Get the user's choice
             choice = getValidInput("Enter your choice");
 
+            // Perform actions based on the user's choice
             switch (choice) {
                 case "100", "VFQ" -> viewAllQueues();
                 case "101", "VEQ" -> viewAllEmptyQueues();
@@ -55,8 +69,10 @@ public class Main {
         } while (runProgramme);
     }
 
-    private void printMenu() {
+    public void printMenu() {
+        // Check if the burger count is sufficient
         checkSufficientBurgerCount(10);
+        // Print the menu options
         System.out.println("\nMenu Options:");
         System.out.println("\n100 or VFQ: View all Queues.");
         System.out.println("101 or VEQ: View all Empty Queues.");
@@ -72,7 +88,16 @@ public class Main {
         System.out.println("--------------------------------------------------");
     }
 
-    private void viewAllQueues() {
+    public void checkSufficientBurgerCount( int MinimumRequiredAmount){
+        if (BurgerStockCount <= MinimumRequiredAmount){
+            System.out.println("\n*****************************************************************************************************\n" +
+                    "You have reached the minimum required amount of " + MinimumRequiredAmount +
+                    " burgers in stock!!Adding more burgers is recommended before continuing!!" +
+                    "\n*****************************************************************************************************");
+        }
+    }
+
+    public void viewAllQueues() {
         System.out.println("\n*****************");
         System.out.println("*    Cashiers   *");
         System.out.println("*****************");
@@ -93,14 +118,9 @@ public class Main {
             System.out.print("    ");
             System.out.println(printArrayElementStatus(queue3, i));
         }
-
-        System.out.println(Arrays.toString(queue1));
-        System.out.println(Arrays.toString(queue2));
-        System.out.println(Arrays.toString(queue3));
-        System.out.println(Arrays.deepToString(servedCustomerData));
     }
 
-    private String printArrayElementStatus(String[] array, int arrayIndex) {
+    public String printArrayElementStatus(String[] array, int arrayIndex) {
         if (array[arrayIndex] == null) {
             return "X";
         } else {
@@ -108,7 +128,7 @@ public class Main {
         }
     }
 
-    private void viewAllEmptyQueues() {
+    public void viewAllEmptyQueues() {
         System.out.println("\n**********************************************");
         if (checkForEmptySlot(queue1)){
             System.out.println("First Queue has empty slots");
@@ -134,7 +154,7 @@ public class Main {
         return false;
     }
 
-    private void addCustomerToQueue() {
+    public void addCustomerToQueue() {
         String queueNumber = getValidInput("Enter 1 , 2 or 3 to select a queue");
         switch (queueNumber) {
             case ("1") -> checkQueueAvailability(queue1);
@@ -171,7 +191,7 @@ public class Main {
         }
     }
 
-    private void removeCustomerFromQueue(){
+    public void removeCustomerFromQueue(){
         String choice = getValidInput("Do you want to remove a customer? (yes/no)");
         if (choice.equals("yes")) {
             chooseQueueToRemoveCustomer();
@@ -179,7 +199,7 @@ public class Main {
         runMenu();
     }
 
-    private void chooseQueueToRemoveCustomer(){
+    public void chooseQueueToRemoveCustomer(){
         String choice = getValidInput("Choose the queue to remove customer from");
         switch (choice) {
             case ("1") -> removeCustomerInGivenIndex(queue1);
@@ -241,7 +261,7 @@ public class Main {
     }
 
 
-    private void chooseQueueToRemoveServedCustomer(){
+    public void chooseQueueToRemoveServedCustomer(){
         String choice = getValidInput("Choose the queue to remove served customer from");
         switch (choice) {
             case ("1") -> removeServedCustomer(queue1, "Queue One");
@@ -289,7 +309,7 @@ public class Main {
         }
     }
 
-    private void viewCustomerSorted(){
+    public void viewCustomerSorted(){
         String choice = getValidInput("Select queue to sort");
         switch (choice) {
             case ("1") -> System.out.println(Arrays.toString(sortCustomers(queue1)));
@@ -340,7 +360,7 @@ public class Main {
         }
     }
 
-    private void storeProgramData(){
+    public void storeProgramData(){
         try {
             FileWriter myWriter = new FileWriter("Programme-log.txt", true);
             String logEntry = "Session started at: " + sessionStartDateTime + "\n-----------------------------------------\n" + loopAndPrintServedCustomers()
@@ -380,7 +400,7 @@ public class Main {
         return sb.toString();
     }
 
-    private void loadProgramData(){
+    public void loadProgramData(){
         try {
             FileReader fileReader = new FileReader("Programme-log.txt");
             BufferedReader bufferedReader = new BufferedReader(fileReader);
@@ -396,21 +416,14 @@ public class Main {
             e.printStackTrace();
         }
     }
-    private void viewRemainingBurgers() {
+    public void viewRemainingBurgers() {
         System.out.print("\n**********************************************\nNumber of Burgers remaining in stock: " + BurgerStockCount +
                 "\n**********************************************" );
     }
 
-    public void checkSufficientBurgerCount( int MinimumRequiredAmount){
-        if (BurgerStockCount <= MinimumRequiredAmount){
-            System.out.println("\n*****************************************************************************************************\n" +
-                    "You have reached the minimum required amount of " + MinimumRequiredAmount +
-                                " burgers in stock!!Adding more burgers is recommended before continuing!!" +
-                    "\n*****************************************************************************************************");
-        }
-    }
 
-    private void addBurgers(){
+
+    public void addBurgers(){
         try {
             int  burgersToAdd = Integer.parseInt(getValidInput("How many burgers do you want to add"));
             if (BurgerStockCount + burgersToAdd > 50){
@@ -452,7 +465,7 @@ public class Main {
         return input;
     }
 
-    private void exitProgram(){
+    public void exitProgram(){
         String choice = getValidInput("INPUT 'yes' IF YOU WANT TO STORE THE DATA OF THIS SESSION BEFORE EXITING THE PROGRAMME," +
                 " 'no' TO EXIT WITHOUT STORING DATA AND 'back' TO GO BACK TO MENU!!");
         switch (choice){
