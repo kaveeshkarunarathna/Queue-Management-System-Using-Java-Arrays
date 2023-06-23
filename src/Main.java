@@ -3,6 +3,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -12,7 +13,7 @@ public class Main {
     //Initiate variable to get Date and time when a session starts.
     static String sessionStartDateTime;
     //Set up the number of burgers in stock.
-    int BurgerStockCount = 50;
+    static int BurgerStockCount = 50;
     //Set variable to track the number of burgers sold.
     int totalBurgersSold = 0;
     // Three queues to store customer names
@@ -22,7 +23,7 @@ public class Main {
     // Multidimensional array to store served customer data
     Object[][] servedCustomerData = new Object[10][4];
     // Flag to control program execution
-    boolean runProgramme;
+    static boolean runProgram;
 
 
     public static void main(String[] args) {
@@ -39,7 +40,7 @@ public class Main {
     public void runMenu(){
         String choice;
         // Set the flag to true to continue program execution
-        runProgramme = true;
+        runProgram = true;
 
         do {
             // Print the menu options
@@ -66,7 +67,7 @@ public class Main {
                         **********************************************""");
             }
 
-        } while (runProgramme);
+        } while (runProgram);
     }
 
     public void printMenu() {
@@ -88,6 +89,7 @@ public class Main {
         System.out.println("--------------------------------------------------");
     }
 
+    //This method checks if the number of burgers in stock is less than the minimum required amount of burgers and gives a warning message.
     public void checkSufficientBurgerCount( int MinimumRequiredAmount){
         if (BurgerStockCount <= MinimumRequiredAmount){
             System.out.println("\n*****************************************************************************************************\n" +
@@ -96,7 +98,7 @@ public class Main {
                     "\n*****************************************************************************************************");
         }
     }
-
+    //Shows the status of the queues visually.
     public void viewAllQueues() {
         System.out.println("\n*****************");
         System.out.println("*    Cashiers   *");
@@ -119,15 +121,15 @@ public class Main {
             System.out.println(printArrayElementStatus(queue3, i));
         }
     }
-
-    public String printArrayElementStatus(String[] array, int arrayIndex) {
+    //Checks if a given index of the given array is null or not and returns "X" or "O" accordingly.
+    public static String printArrayElementStatus(String[] array, int arrayIndex) {
         if (array[arrayIndex] == null) {
             return "X";
         } else {
             return "O";
         }
     }
-
+    //Prints out messages about queues with empty slots.
     public void viewAllEmptyQueues() {
         System.out.println("\n**********************************************");
         if (checkForEmptySlot(queue1)){
@@ -144,8 +146,8 @@ public class Main {
         }
         System.out.println("\n**********************************************");
     }
-
-    public boolean checkForEmptySlot(String[] queue){
+    //Checks for empty slots in a given array.
+    public static boolean checkForEmptySlot(String[] queue){
         for (String element : queue){
             if (element == null) {
                 return true;
@@ -153,7 +155,7 @@ public class Main {
         }
         return false;
     }
-
+    //Lets the users select the queue to add customer to and calls the method to check availability of that queue.
     public void addCustomerToQueue() {
         String queueNumber = getValidInput("Enter 1 , 2 or 3 to select a queue");
         switch (queueNumber) {
@@ -169,7 +171,20 @@ public class Main {
             }
         }
     }
-    public void modifyQueue(String[] queue){
+    //Checks whether the queue selected by the user is full or not. If full, lets user choose a different queue or go back to the menu
+    public void checkQueueAvailability(String[] queue){
+        if (queue[queue.length - 1] != null) {
+            String choice = getValidInput("This queue is full! Put 'yes' to try another queue. Put 'no' to go back to menu");
+            if (choice.equals("yes")) {
+                addCustomerToQueue();
+            }
+            runMenu();
+        } else {
+            addCustomerNameToQueue(queue);
+        }
+    }
+    //Gets customer name from user and adds it to the selected queue
+    public static void addCustomerNameToQueue(String[] queue){
         String customerName = getValidInput("Enter customer name");
         for (int i = 0; i < queue.length; i++){
             if (queue[i] == null) {
@@ -179,18 +194,7 @@ public class Main {
         }
     }
 
-    public void checkQueueAvailability(String[] queue){
-        if (queue[queue.length - 1] != null) {
-            String choice = getValidInput("This queue is full! Put 'yes' to try another queue. Put 'no' to go back to menu");
-            if (choice.equals("yes")) {
-                addCustomerToQueue();
-            }
-            runMenu();
-        } else {
-            modifyQueue(queue);
-        }
-    }
-
+    //Confirms whether the user wants to remove a customer.
     public void removeCustomerFromQueue(){
         String choice = getValidInput("Do you want to remove a customer? (yes/no)");
         if (choice.equals("yes")) {
@@ -198,7 +202,7 @@ public class Main {
         }
         runMenu();
     }
-
+    //Lets the user choose the queue to remove customer from.
     public void chooseQueueToRemoveCustomer(){
         String choice = getValidInput("Choose the queue to remove customer from");
         switch (choice) {
@@ -214,6 +218,7 @@ public class Main {
             }
         }
     }
+    //Removes the customer in a given index.
     public void removeCustomerInGivenIndex(String[] queue){
         int index = Integer.parseInt(getValidInput("Choose the index of the customer you wish to remove"));
         try {
@@ -230,10 +235,9 @@ public class Main {
                 String choice = getValidInput("Input 'yes' if you want to remove " + selectedCustomer +
                         " 'no' to go back to menu");
                 if (choice.equals("yes")) {
-                    queue[index] = queue[index + 1];
-                    queue[index + 1] = null;
+                    queue[index] = null;
                     System.out.println(selectedCustomer + " was removed from queue.");
-                    moveCustomerUpOneSlot(queue);
+                    moveCustomersUpOneSlot(queue);
                 }
                 runMenu();
             }
@@ -246,8 +250,8 @@ public class Main {
             runMenu();
         }
     }
-
-    public void moveCustomerUpOneSlot(String[] queue){
+    //Moves the customers up the queue when a customer is removed.
+    public void moveCustomersUpOneSlot(String[] queue){
         for (int i = 0; i < queue.length ; i++){
             try {
                 if (queue[i] == null) {
@@ -259,8 +263,7 @@ public class Main {
             }
         }
     }
-
-
+    //Lets the user choose which queue to remove served customer from
     public void chooseQueueToRemoveServedCustomer(){
         String choice = getValidInput("Choose the queue to remove served customer from");
         switch (choice) {
@@ -276,7 +279,7 @@ public class Main {
             }
         }
     }
-
+    //Removes the customer from the given queue after serving them 5 burgers
     public void removeServedCustomer(String[] queue, String queueName) {
         String customerName = queue[0];
         if (queue[0] == null) {
@@ -292,29 +295,29 @@ public class Main {
             BurgerStockCount -= 5;
             totalBurgersSold += 5;
             addServedCustomerData(queueName, customerName);
-            moveCustomerUpOneSlot(queue);
+            moveCustomersUpOneSlot(queue);
         }
 
     }
-
+    //Adds the relevant data to the array when a customer is served.
     public void addServedCustomerData(String queueName, String customerName){
         for (int i = 0; i < servedCustomerData.length; i++){
             if (servedCustomerData[i][0] == null){
                 servedCustomerData[i][0] = customerName;
                 servedCustomerData[i][1] = 5;
                 servedCustomerData[i][2] = queueName;
-                servedCustomerData[i][3] = LocalDateTime.now();
+                servedCustomerData[i][3] = LocalTime.now();
                 break;
             }
         }
     }
-
+    //Lets the user choose which queue to get sorted alphabetically and calls the sortCustomerAndPrint method for the chosen queue.
     public void viewCustomerSorted(){
         String choice = getValidInput("Select queue to sort");
         switch (choice) {
-            case ("1") -> System.out.println(Arrays.toString(sortCustomers(queue1)));
-            case ("2") -> System.out.println(Arrays.toString(sortCustomers(queue2)));
-            case ("3") -> System.out.println(Arrays.toString(sortCustomers(queue3)));
+            case ("1") -> sortCustomersAndPrint(queue1);
+            case ("2") -> sortCustomersAndPrint(queue2);
+            case ("3") -> sortCustomersAndPrint(queue3);
             default -> {
                 System.out.println("""
                         **********************************************
@@ -326,20 +329,25 @@ public class Main {
 
     }
 
-    public static String[] sortCustomers(String[] queue) {
+    //Prints the customer names in the alphabetical order in the given queue
+    public static void sortCustomersAndPrint(String[] queue) {
+        String[] sortedQueue = Arrays.copyOf(queue, queue.length);//Create a copy of the given queue to sort it.
         int n = queue.length;
+        //Sort the queue using bubble sort.
         for (int i = 0; i < n-1; i++) {
             for (int j = 0; j < n-i-1; j++) {
-                if (compareStrings(queue[j], queue[j+1]) > 0) {
-                    String temp = queue[j];
-                    queue[j] = queue[j+1];
-                    queue[j+1] = temp;
+                if (compareStrings(sortedQueue[j], sortedQueue[j+1]) > 0) {
+                    String temp = sortedQueue[j];
+                    sortedQueue[j] = sortedQueue[j+1];
+                    sortedQueue[j+1] = temp;
                 }
             }
         }
-        return queue;
+        for (String customer: sortedQueue){
+            System.out.print(customer + " ");
+        }
     }
-
+    //Compares two strings.
     public static int compareStrings(String string1, String string2) {
         if (string1 == null && string2 == null) {
             return 0;
@@ -359,11 +367,11 @@ public class Main {
             return string1.length() - string2.length();
         }
     }
-
+    //Store the log entry for the session into the text file.
     public void storeProgramData(){
         try {
-            FileWriter myWriter = new FileWriter("Programme-log.txt", true);
-            String logEntry = "Session started at: " + sessionStartDateTime + "\n-----------------------------------------\n" + loopAndPrintServedCustomers()
+            FileWriter myWriter = new FileWriter("Program-log.txt", true);
+            String logEntry = "Session started at: " + sessionStartDateTime + "\n-----------------------------------------\n" + storeServedCustomerDataToString()
                     + "\nTotal Number of Burgers sold: " + totalBurgersSold + "\n-----------------------------------------\n";
             myWriter.write(logEntry);
             myWriter.close();
@@ -375,16 +383,16 @@ public class Main {
         }
 
     }
-
-    public String loopAndPrintServedCustomers(){
+    //Stores the customer data from servedCustomerData array in to a string and returns it.
+    public String storeServedCustomerDataToString(){
         StringBuilder sb = new StringBuilder();
 
-        for (Object[] servedCustomerDatum : servedCustomerData) {
-            if (servedCustomerDatum[0] != null) {
-                String customerName = servedCustomerDatum[0].toString();
-                String burgerAmount = servedCustomerDatum[1].toString();
-                String queueName = servedCustomerDatum[2].toString();
-                String dateTime = servedCustomerDatum[3].toString();
+        for (Object[] servedCustomer : servedCustomerData) {
+            if (servedCustomer[0] != null) {
+                String customerName = servedCustomer[0].toString();
+                String burgerAmount = servedCustomer[1].toString();
+                String queueName = servedCustomer[2].toString();
+                String dateTime = servedCustomer[3].toString();
 
                 sb.append("\n")
                         .append(customerName)
@@ -399,10 +407,10 @@ public class Main {
         }
         return sb.toString();
     }
-
+    //Load the data stored in the text file to the program.
     public void loadProgramData(){
         try {
-            FileReader fileReader = new FileReader("Programme-log.txt");
+            FileReader fileReader = new FileReader("Program-log.txt");
             BufferedReader bufferedReader = new BufferedReader(fileReader);
             String line;
 
@@ -416,13 +424,12 @@ public class Main {
             e.printStackTrace();
         }
     }
+    //Shows the amount of burgers remaining in stock
     public void viewRemainingBurgers() {
         System.out.print("\n**********************************************\nNumber of Burgers remaining in stock: " + BurgerStockCount +
                 "\n**********************************************" );
     }
-
-
-
+    //Allows the user to add burgers to the stock
     public void addBurgers(){
         try {
             int  burgersToAdd = Integer.parseInt(getValidInput("How many burgers do you want to add"));
@@ -435,7 +442,7 @@ public class Main {
                 runMenu();
             } else {
                 BurgerStockCount += burgersToAdd;
-                System.out.println(burgersToAdd + " number of burgers were added to the stock");
+                System.out.println(burgersToAdd + " burgers were added to the stock");
             }
         } catch (Exception e){
             System.out.println("""
@@ -446,7 +453,8 @@ public class Main {
         }
 
     }
-    public String getValidInput(String prompt) {
+    //Gets input from the user and check if it is valid and returns it.
+    public static String getValidInput(String prompt) {
         Scanner scanner = new Scanner(System.in);
         String input;
 
@@ -466,23 +474,16 @@ public class Main {
     }
 
     public void exitProgram(){
-        String choice = getValidInput("INPUT 'yes' IF YOU WANT TO STORE THE DATA OF THIS SESSION BEFORE EXITING THE PROGRAMME," +
+        String choice = getValidInput("INPUT 'yes' IF YOU WANT TO STORE THE DATA OF THIS SESSION BEFORE EXITING THE PROGRAMME,\n" +
                 " 'no' TO EXIT WITHOUT STORING DATA AND 'back' TO GO BACK TO MENU!!");
-        switch (choice){
-            case("yes"):
-                storeProgramData();
-                break;
-            case("no"):
-                runProgramme = false;
-            case("back"):
-                runMenu();
-            default:
-                System.out.println("""
-                            **********************************************
-                            Invalid choice. Please try again.
-                            **********************************************""");
-                break;
-
+        switch (choice) {
+            case ("yes") -> storeProgramData();
+            case ("no") -> runProgram = false;
+            case ("back") -> runMenu();
+            default -> System.out.println("""
+                    **********************************************
+                    Invalid choice. Please try again.
+                    **********************************************""");
         }
 
     }
